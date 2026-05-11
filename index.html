@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Artooie — Zone Control</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f5f6f8;
+    --white:    #ffffff;
+    --border:   #e2e5ea;
+    --text:     #1a1d23;
+    --muted:    #6b7280;
+    --bull:     #059669;
+    --bull-bg:  #ecfdf5;
+    --bull-bdr: #6ee7b7;
+    --bear:     #dc2626;
+    --bear-bg:  #fef2f2;
+    --bear-bdr: #fca5a5;
+    --accent:   #2563eb;
+    --accent-bg:#eff6ff;
+    --radius:   12px;
+    --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* Header */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-name {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text);
+  }
+
+  .conn-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .conn-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #d1d5db;
+  }
+  .conn-dot.on { background: var(--bull); }
+
+  /* Creds */
+  .creds {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .creds-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .creds-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 68px;
+    letter-spacing: 0.02em;
+  }
+
+  .creds input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+  }
+  .creds input:focus { border-color: var(--accent); background: white; }
+
+  .save-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .save-btn:active { opacity: 0.8; }
+
+  /* Main */
+  .main {
+    padding: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 20px 0 10px;
+  }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+  }
+
+  /* Direction */
+  .dir-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .dir-btn {
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  .dir-btn.bull.active {
+    background: var(--bull-bg);
+    border-color: var(--bull);
+    color: var(--bull);
+  }
+  .dir-btn.bear.active {
+    background: var(--bear-bg);
+    border-color: var(--bear);
+    color: var(--bear);
+  }
+
+  /* Fields */
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .field input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .field input:focus { border-color: var(--accent); }
+
+  .fields-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Timeframe */
+  .tf-wrap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .tf-btn {
+    padding: 11px 6px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .tf-btn.active {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Send button */
+  .send-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s;
+    margin-top: 4px;
+  }
+  .send-btn:active { opacity: 0.85; }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .send-btn.bull-mode { background: var(--bull); }
+  .send-btn.bear-mode { background: var(--bear); }
+
+  /* Quick commands */
+  .quick-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .q-btn {
+    padding: 13px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .q-btn:active { background: var(--bg); }
+  .q-btn.danger {
+    color: var(--bear);
+    border-color: var(--bear-bdr);
+    background: var(--bear-bg);
+  }
+
+  .clear-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .clear-row input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .clear-row input:focus { border-color: var(--bear); }
+  .clear-row button {
+    padding: 13px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--bear-bdr);
+    background: var(--bear-bg);
+    color: var(--bear);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .clear-row button:active { opacity: 0.8; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--text);
+    color: white;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.ok   { background: var(--bull); }
+  .toast.err  { background: var(--bear); }
+
+  @media (max-width: 380px) {
+    .main { padding: 12px; }
+    .tf-wrap { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">R2</div>
+    <div class="logo-name">Artooie</div>
+  </div>
+  <div class="conn-badge">
+    <div class="conn-dot" id="connDot"></div>
+    <span id="connLabel">Not connected</span>
+  </div>
+</div>
+
+<div class="creds">
+  <div class="creds-row">
+    <span class="creds-label">Bot Token</span>
+    <input type="password" id="botToken" placeholder="Paste Telegram bot token" autocomplete="off">
+  </div>
+  <div class="creds-row">
+    <span class="creds-label">Chat ID</span>
+    <input type="text" id="chatId" placeholder="Your chat ID" style="max-width:160px">
+    <button class="save-btn" onclick="saveCreds()">Save</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="section-title">Set Zone</div>
+  <div class="card">
+
+    <div class="dir-row">
+      <button class="dir-btn bull active" id="btnBull" onclick="setDir('bullish')">▲ Bullish</button>
+      <button class="dir-btn bear" id="btnBear" onclick="setDir('bearish')">▼ Bearish</button>
+    </div>
+
+    <div class="fields-2">
+      <div class="field">
+        <label>Zone Top</label>
+        <input type="number" id="zoneTop" placeholder="29435" step="0.25" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Zone Bottom</label>
+        <input type="number" id="zoneBottom" placeholder="29420" step="0.25" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Target</label>
+        <input type="number" id="zoneTarget" placeholder="29300" step="0.25" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Stop</label>
+        <input type="number" id="zoneStop" placeholder="29450" step="0.25" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Timeframe</label>
+      <div class="tf-wrap">
+        <button class="tf-btn" onclick="setTf('1m')">1m</button>
+        <button class="tf-btn" onclick="setTf('3m')">3m</button>
+        <button class="tf-btn" onclick="setTf('5m')">5m</button>
+        <button class="tf-btn active" onclick="setTf('15m')">15m</button>
+        <button class="tf-btn" onclick="setTf('30m')">30m</button>
+        <button class="tf-btn" onclick="setTf('1H')">1H</button>
+        <button class="tf-btn" onclick="setTf('4H')">4H</button>
+        <button class="tf-btn" onclick="setTf('1D')">1D</button>
+      </div>
+    </div>
+
+    <button class="send-btn bull-mode" id="sendBtn" onclick="sendZone()">
+      Send Zone to Artooie
+    </button>
+  </div>
+
+  <div class="section-title">Commands</div>
+  <div class="card">
+    <div class="quick-row">
+      <button class="q-btn" onclick="sendCmd('/status')">📊 Status</button>
+      <button class="q-btn danger" onclick="sendCmd('/clearzone all')">🗑 Clear All</button>
+    </div>
+    <div class="clear-row">
+      <input type="number" id="clearNum" placeholder="Zone number" min="1" step="1" inputmode="numeric">
+      <button onclick="clearZone()">Clear Zone</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let direction = 'bullish';
+  let timeframe = '15m';
+
+  function saveCreds() {
+    const token  = document.getElementById('botToken').value.trim();
+    const chatId = document.getElementById('chatId').value.trim();
+    if (!token || !chatId) { showToast('Enter both token and chat ID', 'err'); return; }
+    localStorage.setItem('artooie_token', token);
+    localStorage.setItem('artooie_chatid', chatId);
+    showToast('Saved!', 'ok');
+    checkConn();
+  }
+
+  function loadCreds() {
+    const t = localStorage.getItem('artooie_token');
+    const c = localStorage.getItem('artooie_chatid');
+    if (t) document.getElementById('botToken').value = t;
+    if (c) document.getElementById('chatId').value   = c;
+    if (t && c) checkConn();
+  }
+
+  async function checkConn() {
+    const token = localStorage.getItem('artooie_token');
+    if (!token) return;
+    try {
+      const r = await fetch('https://api.telegram.org/bot' + token + '/getMe');
+      const d = await r.json();
+      const dot = document.getElementById('connDot');
+      const lbl = document.getElementById('connLabel');
+      if (d.ok) {
+        dot.classList.add('on');
+        lbl.textContent = '@' + d.result.username;
+      } else {
+        dot.classList.remove('on');
+        lbl.textContent = 'Invalid token';
+      }
+    } catch(e) {
+      document.getElementById('connLabel').textContent = 'Offline';
+    }
+  }
+
+  function setDir(dir) {
+    direction = dir;
+    document.getElementById('btnBull').classList.toggle('active', dir === 'bullish');
+    document.getElementById('btnBear').classList.toggle('active', dir === 'bearish');
+    const btn = document.getElementById('sendBtn');
+    btn.classList.toggle('bull-mode', dir === 'bullish');
+    btn.classList.toggle('bear-mode', dir === 'bearish');
+  }
+
+  function setTf(tf) {
+    timeframe = tf;
+    document.querySelectorAll('.tf-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === tf);
+    });
+  }
+
+  async function sendZone() {
+    const bottom = document.getElementById('zoneBottom').value.trim();
+    const top    = document.getElementById('zoneTop').value.trim();
+    const target = document.getElementById('zoneTarget').value.trim();
+    const stop   = document.getElementById('zoneStop').value.trim();
+
+    if (!bottom || !top || !target || !stop) {
+      showToast('Fill in all four fields', 'err'); return;
+    }
+    if (parseFloat(bottom) >= parseFloat(top)) {
+      showToast('Bottom must be less than top', 'err'); return;
+    }
+
+    const cmd = '/zone ' + top + ' ' + bottom + ' ' + target + ' ' + stop + ' ' + direction + ' ' + timeframe;
+    await sendCmd(cmd);
+  }
+
+  async function clearZone() {
+    const num = document.getElementById('clearNum').value.trim();
+    if (!num) { showToast('Enter a zone number', 'err'); return; }
+    await sendCmd('/clearzone ' + num);
+    document.getElementById('clearNum').value = '';
+  }
+
+  async function sendCmd(text) {
+    const token  = localStorage.getItem('artooie_token');
+    const chatId = localStorage.getItem('artooie_chatid');
+    if (!token || !chatId) { showToast('Save credentials first', 'err'); return; }
+
+    document.getElementById('sendBtn').disabled = true;
+    try {
+      const r = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        showToast('Sent to Artooie', 'ok');
+      } else {
+        showToast('Error: ' + (d.description || 'Unknown'), 'err');
+      }
+    } catch(e) {
+      showToast('Network error', 'err');
+    } finally {
+      document.getElementById('sendBtn').disabled = false;
+    }
+  }
+
+  let toastTimer;
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = 'toast'; }, 2500);
+  }
+
+  loadCreds();
+</script>
+</body>
+</html>
