@@ -399,6 +399,10 @@
   <div class="creds-row">
     <span class="creds-label">Chat ID</span>
     <input type="text" id="chatId" placeholder="Your chat ID" style="max-width:160px">
+  </div>
+  <div class="creds-row">
+    <span class="creds-label">Bot Name</span>
+    <input type="text" id="botName" placeholder="ArtooieBot (without @)" style="max-width:200px">
     <button class="save-btn" onclick="saveCreds()">Save</button>
   </div>
 </div>
@@ -475,8 +479,10 @@
     const token  = document.getElementById('botToken').value.trim();
     const chatId = document.getElementById('chatId').value.trim();
     if (!token || !chatId) { showToast('Enter both token and chat ID', 'err'); return; }
+    const botName = document.getElementById('botName').value.trim().replace('@','');
     localStorage.setItem('artooie_token', token);
     localStorage.setItem('artooie_chatid', chatId);
+    if (botName) localStorage.setItem('artooie_botname', botName);
     showToast('Saved!', 'ok');
     checkConn();
   }
@@ -484,8 +490,10 @@
   function loadCreds() {
     const t = localStorage.getItem('artooie_token');
     const c = localStorage.getItem('artooie_chatid');
-    if (t) document.getElementById('botToken').value = t;
-    if (c) document.getElementById('chatId').value   = c;
+    const bn = localStorage.getItem('artooie_botname');
+    if (t)  document.getElementById('botToken').value = t;
+    if (c)  document.getElementById('chatId').value   = c;
+    if (bn) document.getElementById('botName').value  = bn;
     if (t && c) checkConn();
   }
 
@@ -549,29 +557,34 @@
     document.getElementById('clearNum').value = '';
   }
 
-  async function sendCmd(text) {
+  function sendCmd(text) {
+    // Copy command to clipboard and open Telegram
+    // (Bot cannot receive its own messages via getUpdates)
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied! Paste into Artooie chat', 'ok');
+    }).catch(() => {
+      // Fallback if clipboard not available
+      showToast(text, 'ok');
+    });
+    // Open Telegram bot directly
+    const botName = localStorage.getItem('artooie_botname') || '';
+    if (botName) {
+      window.open('https://t.me/' + botName, '_blank');
+    }
+  }
+
+  async function sendZoneApi(text) {
+    // Keep for status checks only
     const token  = localStorage.getItem('artooie_token');
     const chatId = localStorage.getItem('artooie_chatid');
     if (!token || !chatId) { showToast('Save credentials first', 'err'); return; }
-
-    document.getElementById('sendBtn').disabled = true;
     try {
       const r = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId, text: text })
       });
-      const d = await r.json();
-      if (d.ok) {
-        showToast('Sent to Artooie', 'ok');
-      } else {
-        showToast('Error: ' + (d.description || 'Unknown'), 'err');
-      }
-    } catch(e) {
-      showToast('Network error', 'err');
-    } finally {
-      document.getElementById('sendBtn').disabled = false;
-    }
+    } catch(e) {}
   }
 
   let toastTimer;
