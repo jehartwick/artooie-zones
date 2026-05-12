@@ -3,415 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Artooie — Zone Control</title>
+<title>Artooie — Zone Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:       #f5f6f8;
-    --white:    #ffffff;
-    --border:   #e2e5ea;
-    --text:     #1a1d23;
-    --muted:    #6b7280;
-    --bull:     #059669;
-    --bull-bg:  #ecfdf5;
-    --bull-bdr: #6ee7b7;
-    --bear:     #dc2626;
-    --bear-bg:  #fef2f2;
-    --bear-bdr: #fca5a5;
-    --accent:   #2563eb;
-    --accent-bg:#eff6ff;
-    --radius:   12px;
-    --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --bg:      #f5f6f8;
+    --white:   #ffffff;
+    --border:  #e2e5ea;
+    --text:    #1a1d23;
+    --muted:   #6b7280;
+    --bull:    #059669;
+    --bull-bg: #ecfdf5;
+    --bear:    #dc2626;
+    --bear-bg: #fef2f2;
+    --accent:  #2563eb;
+    --acc-bg:  #eff6ff;
+    --radius:  12px;
+    --shadow:  0 1px 3px rgba(0,0,0,0.08);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding-bottom: 60px; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
+  .header { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow); }
+  .logo-mark { width: 34px; height: 34px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+  .logo-name { font-size: 17px; font-weight: 700; color: var(--text); }
 
-  /* Header */
-  .header {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: var(--shadow);
-  }
+  .main { padding: 16px; max-width: 500px; margin: 0 auto; }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 20px 0 10px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .dir-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .dir-btn { padding: 14px; border-radius: 10px; border: 2px solid var(--border); background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; color: var(--muted); }
+  .dir-btn.bull.active { background: var(--bull-bg); border-color: var(--bull); color: var(--bull); }
+  .dir-btn.bear.active { background: var(--bear-bg); border-color: var(--bear); color: var(--bear); }
 
-  .logo-mark {
-    width: 34px;
-    height: 34px;
-    background: var(--accent);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
-  }
-
-  .logo-name {
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    color: var(--text);
-  }
-
-  .conn-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--bg);
-    padding: 5px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-  }
-
-  .conn-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #d1d5db;
-  }
-  .conn-dot.on { background: var(--bull); }
-
-  /* Creds */
-  .creds {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .creds-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .creds-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    min-width: 68px;
-    letter-spacing: 0.02em;
-  }
-
-  .creds input {
-    flex: 1;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--text);
-    background: var(--bg);
-    outline: none;
-  }
-  .creds input:focus { border-color: var(--accent); background: white; }
-
-  .save-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .save-btn:active { opacity: 0.8; }
-
-  /* Main */
-  .main {
-    padding: 16px;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 20px 0 10px;
-  }
-
-  .card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 12px;
-  }
-
-  /* Direction */
-  .dir-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .dir-btn {
-    padding: 14px;
-    border-radius: 10px;
-    border: 2px solid var(--border);
-    background: var(--bg);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--muted);
-    letter-spacing: 0.02em;
-  }
-
-  .dir-btn.bull.active {
-    background: var(--bull-bg);
-    border-color: var(--bull);
-    color: var(--bull);
-  }
-  .dir-btn.bear.active {
-    background: var(--bear-bg);
-    border-color: var(--bear);
-    color: var(--bear);
-  }
-
-  /* Fields */
-  .field {
-    margin-bottom: 12px;
-  }
-
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    letter-spacing: 0.02em;
-  }
-
-  .field input {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 13px 14px;
-    font-family: 'DM Mono', monospace;
-    font-size: 16px;
-    color: var(--text);
-    background: var(--white);
-    outline: none;
-    -webkit-appearance: none;
-  }
+  .fields-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .field input { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px 14px; font-family: 'DM Mono', monospace; font-size: 16px; color: var(--text); background: var(--white); outline: none; -webkit-appearance: none; }
   .field input:focus { border-color: var(--accent); }
 
-  .fields-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  .tf-wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+  .tf-btn { padding: 11px 6px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; text-align: center; }
+  .tf-btn.active { background: var(--acc-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
 
-  /* Timeframe */
-  .tf-wrap {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    margin-bottom: 16px;
-  }
+  .build-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; background: var(--accent); color: white; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .build-btn.bull-mode { background: var(--bull); }
+  .build-btn.bear-mode { background: var(--bear); }
 
-  .tf-btn {
-    padding: 11px 6px;
-    border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--bg);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-  }
-  .tf-btn.active {
-    background: var(--accent-bg);
-    border-color: var(--accent);
-    color: var(--accent);
-    font-weight: 600;
-  }
+  /* Command output */
+  .cmd-box { display: none; margin-top: 16px; }
+  .cmd-box.show { display: block; }
+  .cmd-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+  .cmd-text { background: #1a1d23; color: #00e5ff; font-family: 'DM Mono', monospace; font-size: 13px; padding: 14px; border-radius: 10px; word-break: break-all; line-height: 1.6; margin-bottom: 10px; }
+  .copy-btn { width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--accent); background: white; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .copy-btn.copied { background: var(--bull); border-color: var(--bull); color: white; }
 
-  /* Send button */
-  .send-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent);
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: opacity 0.15s;
-    margin-top: 4px;
-  }
-  .send-btn:active { opacity: 0.85; }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .send-btn.bull-mode { background: var(--bull); }
-  .send-btn.bear-mode { background: var(--bear); }
+  .instructions { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 14px; margin-top: 10px; font-size: 13px; color: #92400e; line-height: 1.6; }
+  .instructions b { display: block; margin-bottom: 4px; }
 
   /* Quick commands */
-  .quick-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .q-btn {
-    padding: 13px;
-    border-radius: 10px;
-    border: 1.5px solid var(--border);
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    box-shadow: var(--shadow);
-  }
+  .quick-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .q-btn { padding: 12px 8px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--white); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--text); cursor: pointer; text-align: center; box-shadow: var(--shadow); }
   .q-btn:active { background: var(--bg); }
-  .q-btn.danger {
-    color: var(--bear);
-    border-color: var(--bear-bdr);
-    background: var(--bear-bg);
-  }
 
-  .clear-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .clear-row input {
-    flex: 1;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 13px 14px;
-    font-family: 'DM Mono', monospace;
-    font-size: 15px;
-    color: var(--text);
-    outline: none;
-    -webkit-appearance: none;
-  }
-  .clear-row input:focus { border-color: var(--bear); }
-  .clear-row button {
-    padding: 13px 18px;
-    border-radius: 10px;
-    border: 1.5px solid var(--bear-bdr);
-    background: var(--bear-bg);
-    color: var(--bear);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .clear-row button:active { opacity: 0.8; }
+  .q-cmd-box { margin-top: 12px; display: none; }
+  .q-cmd-box.show { display: block; }
 
   /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--text);
-    color: white;
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    z-index: 100;
-    white-space: nowrap;
-    max-width: 90vw;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text); color: white; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-weight: 500; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 100; max-width: 90vw; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.ok   { background: var(--bull); }
-  .toast.err  { background: var(--bear); }
-
-  @media (max-width: 380px) {
-    .main { padding: 12px; }
-    .tf-wrap { grid-template-columns: repeat(4, 1fr); }
-  }
+  .toast.ok { background: var(--bull); }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">
-    <div class="logo-mark">R2</div>
-    <div class="logo-name">Artooie</div>
-  </div>
-  <div class="conn-badge">
-    <div class="conn-dot" id="connDot"></div>
-    <span id="connLabel">Not connected</span>
-  </div>
-</div>
-
-<div class="creds">
-  <div class="creds-row">
-    <span class="creds-label">Bot Token</span>
-    <input type="password" id="botToken" placeholder="Paste Telegram bot token" autocomplete="off">
-  </div>
-  <div class="creds-row">
-    <span class="creds-label">Chat ID</span>
-    <input type="text" id="chatId" placeholder="Your chat ID" style="max-width:160px">
-  </div>
-  <div class="creds-row">
-    <span class="creds-label">Bot Name</span>
-    <input type="text" id="botName" placeholder="ArtooieBot (without @)" style="max-width:200px">
-    <button class="save-btn" onclick="saveCreds()">Save</button>
-  </div>
+  <div class="logo-mark">R2</div>
+  <div class="logo-name">Artooie</div>
 </div>
 
 <div class="main">
 
-  <div class="section-title">Set Zone</div>
+  <div class="section-title">Build Zone Command</div>
   <div class="card">
-
     <div class="dir-row">
       <button class="dir-btn bull active" id="btnBull" onclick="setDir('bullish')">▲ Bullish</button>
       <button class="dir-btn bear" id="btnBear" onclick="setDir('bearish')">▼ Bearish</button>
@@ -439,10 +114,10 @@
     <div class="field">
       <label>Timeframe</label>
       <div class="tf-wrap">
-        <button class="tf-btn" onclick="setTf('1m')">1m</button>
+        <button class="tf-btn active" onclick="setTf('1m')">1m</button>
         <button class="tf-btn" onclick="setTf('3m')">3m</button>
         <button class="tf-btn" onclick="setTf('5m')">5m</button>
-        <button class="tf-btn active" onclick="setTf('15m')">15m</button>
+        <button class="tf-btn" onclick="setTf('15m')">15m</button>
         <button class="tf-btn" onclick="setTf('30m')">30m</button>
         <button class="tf-btn" onclick="setTf('1H')">1H</button>
         <button class="tf-btn" onclick="setTf('4H')">4H</button>
@@ -450,20 +125,33 @@
       </div>
     </div>
 
-    <button class="send-btn bull-mode" id="sendBtn" onclick="sendZone()">
-      Send Zone to Artooie
+    <button class="build-btn bull-mode" id="buildBtn" onclick="buildZone()">
+      Build Zone Command
     </button>
+
+    <div class="cmd-box" id="cmdBox">
+      <div class="cmd-label">Your command — copy and paste into Artooie chat:</div>
+      <div class="cmd-text" id="cmdText"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyCmd()">📋 Copy Command</button>
+      <div class="instructions">
+        <b>Next steps:</b>
+        1. Tap Copy above<br>
+        2. Open Telegram → Artooie chat<br>
+        3. Paste and send
+      </div>
+    </div>
   </div>
 
-  <div class="section-title">Commands</div>
+  <div class="section-title">Quick Commands</div>
   <div class="card">
     <div class="quick-row">
-      <button class="q-btn" onclick="sendCmd('/status')">📊 Status</button>
-      <button class="q-btn danger" onclick="sendCmd('/clearzone all')">🗑 Clear All</button>
+      <button class="q-btn" onclick="quickCmd('/status')">/status</button>
+      <button class="q-btn" onclick="quickCmd('/clearzone all')">clear all</button>
+      <button class="q-btn" onclick="quickCmd('/clearzone')">/clearzone</button>
     </div>
-    <div class="clear-row">
-      <input type="number" id="clearNum" placeholder="Zone number" min="1" step="1" inputmode="numeric">
-      <button onclick="clearZone()">Clear Zone</button>
+    <div class="q-cmd-box" id="qCmdBox">
+      <div class="cmd-text" id="qCmdText"></div>
+      <button class="copy-btn" id="qCopyBtn" onclick="copyQuick()">📋 Copy</button>
     </div>
   </div>
 
@@ -473,55 +161,15 @@
 
 <script>
   let direction = 'bullish';
-  let timeframe = '15m';
-
-  function saveCreds() {
-    const token  = document.getElementById('botToken').value.trim();
-    const chatId = document.getElementById('chatId').value.trim();
-    if (!token || !chatId) { showToast('Enter both token and chat ID', 'err'); return; }
-    const botName = document.getElementById('botName').value.trim().replace('@','');
-    localStorage.setItem('artooie_token', token);
-    localStorage.setItem('artooie_chatid', chatId);
-    if (botName) localStorage.setItem('artooie_botname', botName);
-    showToast('Saved!', 'ok');
-    checkConn();
-  }
-
-  function loadCreds() {
-    const t = localStorage.getItem('artooie_token');
-    const c = localStorage.getItem('artooie_chatid');
-    const bn = localStorage.getItem('artooie_botname');
-    if (t)  document.getElementById('botToken').value = t;
-    if (c)  document.getElementById('chatId').value   = c;
-    if (bn) document.getElementById('botName').value  = bn;
-    if (t && c) checkConn();
-  }
-
-  async function checkConn() {
-    const token = localStorage.getItem('artooie_token');
-    if (!token) return;
-    try {
-      const r = await fetch('https://api.telegram.org/bot' + token + '/getMe');
-      const d = await r.json();
-      const dot = document.getElementById('connDot');
-      const lbl = document.getElementById('connLabel');
-      if (d.ok) {
-        dot.classList.add('on');
-        lbl.textContent = '@' + d.result.username;
-      } else {
-        dot.classList.remove('on');
-        lbl.textContent = 'Invalid token';
-      }
-    } catch(e) {
-      document.getElementById('connLabel').textContent = 'Offline';
-    }
-  }
+  let timeframe = '1m';
+  let currentCmd = '';
+  let currentQuick = '';
 
   function setDir(dir) {
     direction = dir;
     document.getElementById('btnBull').classList.toggle('active', dir === 'bullish');
     document.getElementById('btnBear').classList.toggle('active', dir === 'bearish');
-    const btn = document.getElementById('sendBtn');
+    const btn = document.getElementById('buildBtn');
     btn.classList.toggle('bull-mode', dir === 'bullish');
     btn.classList.toggle('bear-mode', dir === 'bearish');
   }
@@ -533,58 +181,58 @@
     });
   }
 
-  async function sendZone() {
-    const bottom = document.getElementById('zoneBottom').value.trim();
+  function buildZone() {
     const top    = document.getElementById('zoneTop').value.trim();
+    const bottom = document.getElementById('zoneBottom').value.trim();
     const target = document.getElementById('zoneTarget').value.trim();
     const stop   = document.getElementById('zoneStop').value.trim();
 
-    if (!bottom || !top || !target || !stop) {
-      showToast('Fill in all four fields', 'err'); return;
+    if (!top || !bottom || !target || !stop) {
+      showToast('Fill in all four fields');
+      return;
     }
     if (parseFloat(bottom) >= parseFloat(top)) {
-      showToast('Bottom must be less than top', 'err'); return;
+      showToast('Top must be greater than bottom');
+      return;
     }
 
-    const cmd = '/zone ' + top + ' ' + bottom + ' ' + target + ' ' + stop + ' ' + direction + ' ' + timeframe;
-    await sendCmd(cmd);
+    currentCmd = '/zone ' + top + ' ' + bottom + ' ' + target + ' ' + stop + ' ' + direction + ' ' + timeframe;
+    document.getElementById('cmdText').textContent = currentCmd;
+    document.getElementById('cmdBox').classList.add('show');
+    document.getElementById('copyBtn').textContent = '📋 Copy Command';
+    document.getElementById('copyBtn').classList.remove('copied');
   }
 
-  async function clearZone() {
-    const num = document.getElementById('clearNum').value.trim();
-    if (!num) { showToast('Enter a zone number', 'err'); return; }
-    await sendCmd('/clearzone ' + num);
-    document.getElementById('clearNum').value = '';
-  }
-
-  function sendCmd(text) {
-    // Copy command to clipboard and open Telegram
-    // (Bot cannot receive its own messages via getUpdates)
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('Copied! Paste into Artooie chat', 'ok');
+  function copyCmd() {
+    navigator.clipboard.writeText(currentCmd).then(() => {
+      document.getElementById('copyBtn').textContent = '✅ Copied!';
+      document.getElementById('copyBtn').classList.add('copied');
+      showToast('Copied! Now paste in Artooie chat', 'ok');
     }).catch(() => {
-      // Fallback if clipboard not available
-      showToast(text, 'ok');
+      // Fallback for older browsers
+      const el = document.getElementById('cmdText');
+      const range = document.createRange();
+      range.selectNode(el);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      showToast('Select and copy the text above');
     });
-    // Open Telegram bot directly
-    const botName = localStorage.getItem('artooie_botname') || '';
-    if (botName) {
-      window.open('https://t.me/' + botName, '_blank');
-    }
   }
 
-  async function sendZoneApi(text) {
-    // Keep for status checks only
-    const token  = localStorage.getItem('artooie_token');
-    const chatId = localStorage.getItem('artooie_chatid');
-    if (!token || !chatId) { showToast('Save credentials first', 'err'); return; }
-    try {
-      const r = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text: text })
-      });
-    } catch(e) {}
+  function quickCmd(cmd) {
+    currentQuick = cmd;
+    document.getElementById('qCmdText').textContent = cmd;
+    document.getElementById('qCmdBox').classList.add('show');
+    document.getElementById('qCopyBtn').textContent = '📋 Copy';
+    document.getElementById('qCopyBtn').classList.remove('copied');
+  }
+
+  function copyQuick() {
+    navigator.clipboard.writeText(currentQuick).then(() => {
+      document.getElementById('qCopyBtn').textContent = '✅ Copied!';
+      document.getElementById('qCopyBtn').classList.add('copied');
+      showToast('Copied! Paste in Artooie chat', 'ok');
+    });
   }
 
   let toastTimer;
@@ -595,8 +243,6 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { el.className = 'toast'; }, 2500);
   }
-
-  loadCreds();
 </script>
 </body>
 </html>
